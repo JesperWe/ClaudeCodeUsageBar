@@ -31,7 +31,7 @@ struct usageBarApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window("Claude Usage Setup", id: "setup") {
+        Window("Claude Code Trust Setup", id: "setup") {
             DirectorySetupView(monitor: monitor)
         }
         .windowResizability(.contentSize)

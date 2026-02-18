@@ -32,6 +32,7 @@ final class UsageMonitor {
 
     init() {
         print("[UsageMonitor] init")
+        
         // Only auto-start if a working directory is already configured
         if workingDirectory != nil {
             DispatchQueue.main.async { [weak self] in

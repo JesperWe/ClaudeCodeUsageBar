@@ -7,8 +7,17 @@ struct DirectorySetupView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("This app needs a local folder that Claude Code has been told to trust.\nSelect any specific folder where you are currently running Claude Code.")
+            VStack(spacing: 2) {
+                Text("This app needs a local folder that")
+                Text("Claude Code has been set to trust.")
+            }
+            .multilineTextAlignment(.center)
+            VStack(spacing: 2) {
+                Text("Select a folder where you are currently")
+                Text("running Claude Code.")
+            }
                 .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
 
             if let dir = monitor.workingDirectory {
                 Text(dir)
@@ -26,7 +35,7 @@ struct DirectorySetupView: View {
             }
         }
         .padding(24)
-        .frame(width: 400)
+        .frame(width: 440)
     }
 
     private func chooseFolder() {
