@@ -49,24 +49,28 @@ struct ContentView: View {
             }
 
             if let updated = monitor.lastUpdated {
-                Text("Updated \(updated.formatted(.relative(presentation: .named)))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                TimelineView(PeriodicTimelineSchedule(from: .now, by: 1)) { _ in
+                    Text("Updated \(updated.formatted(.relative(presentation: .named)))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Divider()
 
-            Button("Refresh") {
-                monitor.fetchUsage()
-            }
-            .disabled(!monitor.hasWorkingDirectory)
+            HStack(spacing: 8) {
+                TooltipButton(icon: "arrow.clockwise", tooltip: "Refresh") {
+                    monitor.fetchUsage()
+                }
+                .disabled(!monitor.hasWorkingDirectory)
 
-            Button("Change Folder…") {
-                chooseFolder()
-            }
+                TooltipButton(icon: "gearshape", tooltip: "Change Folder…") {
+                    chooseFolder()
+                }
 
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
+                TooltipButton(icon: "xmark.circle.fill", tooltip: "Quit") {
+                    NSApplication.shared.terminate(nil)
+                }
             }
         }
         .padding()
@@ -83,5 +87,71 @@ struct ContentView: View {
         if panel.runModal() == .OK, let url = panel.url {
             monitor.workingDirectory = url.path
         }
+    }
+}
+
+struct TooltipButton: View {
+    let icon: String
+    let tooltip: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .frame(maxWidth: .infinity)
+        }
+        .onHover { hovering in
+            if hovering {
+                FloatingTooltip.show(tooltip)
+            } else {
+                FloatingTooltip.hide()
+            }
+        }
+    }
+}
+
+final class FloatingTooltip {
+    private static var window: NSWindow?
+
+    static func show(_ text: String) {
+        hide()
+
+        let label = NSTextField(labelWithString: text)
+        label.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize - 1)
+        label.textColor = .secondaryLabelColor
+        label.backgroundColor = .windowBackgroundColor
+        label.isBezeled = false
+        label.sizeToFit()
+
+        let padding: CGFloat = 6
+        let size = NSSize(width: label.frame.width + padding * 2, height: label.frame.height + padding)
+        label.frame.origin = NSPoint(x: padding, y: padding / 2)
+
+        let win = NSWindow(contentRect: NSRect(origin: .zero, size: size),
+                           styleMask: .borderless, backing: .buffered, defer: false)
+        win.isOpaque = false
+        win.backgroundColor = .clear
+        win.level = .popUpMenu
+        win.hasShadow = true
+
+        let container = NSVisualEffectView(frame: NSRect(origin: .zero, size: size))
+        container.material = .popover
+        container.state = .active
+        container.wantsLayer = true
+        container.layer?.cornerRadius = 4
+        container.addSubview(label)
+
+        win.contentView = container
+
+        let mouseLocation = NSEvent.mouseLocation
+        win.setFrameOrigin(NSPoint(x: mouseLocation.x - size.width / 2,
+                                    y: mouseLocation.y - size.height - 8))
+        win.orderFront(nil)
+        window = win
+    }
+
+    static func hide() {
+        window?.orderOut(nil)
+        window = nil
     }
 }
