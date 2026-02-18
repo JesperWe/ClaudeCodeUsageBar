@@ -112,9 +112,18 @@ struct TooltipButton: View {
 
 final class FloatingTooltip {
     private static var window: NSWindow?
+    private static var showTimer: Timer?
 
     static func show(_ text: String) {
-        hide()
+        showTimer?.invalidate()
+        showTimer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { _ in
+            display(text)
+        }
+    }
+
+    private static func display(_ text: String) {
+        window?.orderOut(nil)
+        window = nil
 
         let label = NSTextField(labelWithString: text)
         label.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize - 1)
@@ -151,6 +160,8 @@ final class FloatingTooltip {
     }
 
     static func hide() {
+        showTimer?.invalidate()
+        showTimer = nil
         window?.orderOut(nil)
         window = nil
     }
