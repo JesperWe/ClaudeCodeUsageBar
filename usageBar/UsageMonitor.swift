@@ -11,6 +11,7 @@ final class UsageMonitor {
     var lastError: String?
     var lastUpdated: Date?
     var rawOutput: String?
+    var isFetching: Bool = false
     var debugLog: String = ""
 
     var workingDirectory: String? {
@@ -55,6 +56,7 @@ final class UsageMonitor {
         print("[UsageMonitor] fetchUsage called")
         appendDebug("fetchUsage called")
         guard let dir = workingDirectory else { return }
+        isFetching = true
         Task.detached { [weak self] in
             guard let self else { return }
             do {
@@ -80,6 +82,7 @@ final class UsageMonitor {
                     self.hasData = true
                     self.lastError = nil
                     self.lastUpdated = Date()
+                    self.isFetching = false
                 }
             } catch {
                 print("[UsageMonitor] Error: \(error)")
@@ -96,6 +99,7 @@ final class UsageMonitor {
                     if let output = capturedOutput {
                         self.rawOutput = output
                     }
+                    self.isFetching = false
                 }
             }
         }

@@ -62,7 +62,7 @@ struct ContentView: View {
                 TooltipButton(icon: "arrow.clockwise", tooltip: "Refresh") {
                     monitor.fetchUsage()
                 }
-                .disabled(!monitor.hasWorkingDirectory)
+                .disabled(!monitor.hasWorkingDirectory || monitor.isFetching)
 
                 TooltipButton(icon: "gearshape", tooltip: "Change Folder…") {
                     chooseFolder()
